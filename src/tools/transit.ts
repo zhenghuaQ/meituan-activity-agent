@@ -1,0 +1,19 @@
+﻿// ============================================================
+// src/tools/transit.ts — Tool 11: estimate_transit
+// ============================================================
+
+import type * as T from "../../spec/tools.js";
+import { BaseTool } from "./base.js";
+import { estimateTransitWithAmap } from "../transit/amap.js";
+
+export class EstimateTransitTool extends BaseTool<
+  T.EstimateTransitInput,
+  T.EstimateTransitOutput
+> {
+  name = "estimate_transit";
+
+  async run(input: T.EstimateTransitInput): Promise<T.EstimateTransitOutput> {
+    // 有高德 Key 走真实路径规划，否则自动降级 Mock 通勤
+    return estimateTransitWithAmap(input.from, input.to, input.departureTime);
+  }
+}
