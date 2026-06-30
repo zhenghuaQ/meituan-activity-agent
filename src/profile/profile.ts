@@ -16,7 +16,8 @@ import type {
   UserPreferenceOverride,
   UserSegment,
 } from "../../spec/profile.js";
-import { ALL_DIMENSIONS, DEFAULT_WEIGHTS, normalizeWeights } from "../../spec/decision.js";
+import { ALL_DIMENSIONS, DEFAULT_WEIGHTS } from "../../spec/decision.js";
+import { normalizeWeights } from "../decision/weights.js";
 import { getSegmentProfile } from "./segments.js";
 
 /**

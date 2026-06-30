@@ -13,7 +13,7 @@ import type {
   ScoringWeights,
   WeatherCondition,
 } from "../../spec/decision.js";
-import { normalizeWeights, hasVulnerable } from "../../spec/decision.js";
+import { normalizeWeights, hasVulnerable } from "./weights.js";
 import { timeToMinutes } from "../../spec/constraints.js";
 import { getAppConfig } from "../core/config.js";
 import { childLogger } from "../core/logger.js";

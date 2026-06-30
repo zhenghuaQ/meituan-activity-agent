@@ -9,7 +9,6 @@
 // ============================================================
 
 import type {
-  Group,
   Plan,
   PlanCandidate,
   StructuredConstraints,
@@ -145,21 +144,3 @@ export interface DecisionResult {
 // 见 spec/types.ts：Plan.score / Plan.explanation / PlanCandidate.objective
 
 export type ScoredPlan = Plan & { score: PlanScore };
-
-export function emptyWeights(): ScoringWeights {
-  return { time: 0, transit: 0, preference: 0, crowd: 0, budget: 0, popularity: 0 };
-}
-
-/** 把任意权重归一化为和为 1（全 0 时回退默认） */
-export function normalizeWeights(w: ScoringWeights): ScoringWeights {
-  const sum = ALL_DIMENSIONS.reduce((s, d) => s + Math.max(0, w[d]), 0);
-  if (sum <= 0) return { ...DEFAULT_WEIGHTS };
-  const out = emptyWeights();
-  for (const d of ALL_DIMENSIONS) out[d] = Math.max(0, w[d]) / sum;
-  return out;
-}
-
-/** 群体便捷判断：是否含敏感人群（用于情境/兜底） */
-export function hasVulnerable(group: Group): boolean {
-  return group.ageGroup.seniors > 0 || group.ageGroup.youngChildren > 0;
-}

@@ -2,8 +2,7 @@
 // spec/constraints.ts — 约束与验证规则 v2
 // ============================================================
 
-import type { AgeGroup, Activity, Plan, PlanCandidate } from "./types.js";
-import { transitScorePenalty, checkTransitFeasible } from "./transit.js";
+import type { AgeGroup, Activity, Plan } from "./types.js";
 
 // ─── 约束检查结果 ──────────────────────────────────────
 
@@ -93,60 +92,6 @@ export function checkPlanCompleteness(plan: Plan): ConstraintCheck[] {
   }
 
   return results;
-}
-
-// ─── 可行性总评分 (0-100) ─────────────────────────────
-
-export function calcFeasibilityScore(plan: Plan): number {
-  let score = 100;
-
-  // 1. 时间冲突扣分
-  for (let i = 0; i < plan.activities.length - 1; i++) {
-    if (!checkTimeConflict(plan.activities[i], plan.activities[i + 1]).passed) {
-      score -= 30;
-    }
-  }
-
-  // 2. 方案完整性扣分
-  for (const c of checkPlanCompleteness(plan)) {
-    if (!c.passed) score -= 20;
-  }
-
-  // 3. 🆕 通勤耗时惩罚（逐段累加）
-  let totalTransitPenalty = 0;
-  for (const act of plan.activities) {
-    if (act.transitTo) {
-      totalTransitPenalty += transitScorePenalty(act.transitTo.totalMinutes);
-      // 通勤不可行直接 -40
-      if (act.transitTo.totalMinutes > 90) {
-        score -= 40;
-      }
-      // 检查通勤合理性和可行性
-      const available = timeToMinutes(act.scheduledStart) - timeToMinutes(
-        plan.activities[act.order - 2]?.scheduledEnd ?? "00:00"
-      );
-      if (available > 0) {
-        if (!checkTransitFeasible(act.transitTo, available).passed) {
-          score -= 30;
-        }
-      }
-    }
-  }
-  score -= totalTransitPenalty;
-
-  return Math.max(0, Math.min(100, score));
-}
-
-// ─── 排序与选择 ────────────────────────────────────────
-
-export function rankCandidates(candidates: PlanCandidate[]): PlanCandidate[] {
-  return [...candidates].sort((a, b) => b.feasibilityScore - a.feasibilityScore);
-}
-
-export function selectBestPlan(candidates: PlanCandidate[]): PlanCandidate | null {
-  const ranked = rankCandidates(candidates);
-  if (ranked.length === 0) return null;
-  return ranked[0].feasibilityScore > 60 ? ranked[0] : null;
 }
 
 // ─── 工具函数 ──────────────────────────────────────────
